@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  --background: #070b14;
+  --foreground: #f3f7ff;
+  --accent: #4dd9ff;
+  --accent-strong: #8c6cff;
+  --secondary: #101521;
+  --muted: #99a6bc;
+  --border: rgba(77, 217, 255, 0.18);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, rgba(77, 217, 255, 0.14), transparent 25%),
+    radial-gradient(circle at 20% 20%, rgba(140, 108, 255, 0.16), transparent 18%),
+    linear-gradient(180deg, #070b14 0%, #060911 40%, #0c1120 100%);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at center, rgba(255,255,255,0.03), transparent 22%),
+    linear-gradient(90deg, rgba(77,217,255,0.06) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(138,103,255,0.05) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 120px 120px;
+  opacity: 0.8;
+  z-index: -1;
+}
+
+body,
+html {
+  scroll-behavior: smooth;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(14, 19, 31, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(77, 217, 255, 0.16);
+}
+
+.neural-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(77, 217, 255, 0.22), transparent 1.3rem),
+    radial-gradient(circle at 75% 15%, rgba(138, 103, 255, 0.2), transparent 1.6rem),
+    radial-gradient(circle at 40% 70%, rgba(77, 217, 255, 0.16), transparent 1.8rem),
+    radial-gradient(circle at 85% 70%, rgba(255, 255, 255, 0.12), transparent 1.4rem),
+    linear-gradient(90deg, rgba(77, 217, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(138, 103, 255, 0.08) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 120px 120px, 120px 120px;
+  mask-image: radial-gradient(circle at center, rgba(255,255,255,0.9), transparent 70%);
+}
+
+.neural-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 20%, rgba(77, 217, 255, 0.15), transparent 24%),
+    radial-gradient(circle at 30% 65%, rgba(138, 103, 255, 0.12), transparent 20%);
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+#chatbot {
+  box-shadow: 0 20px 40px rgba(77, 217, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .neural-grid {
+    background-size: 90px 90px, 90px 90px, 90px 90px, 90px 90px, 90px 90px, 90px 90px;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(77, 217, 255, 0.35);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(77, 217, 255, 0.55);
+}

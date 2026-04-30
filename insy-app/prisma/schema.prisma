@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("admin") // admin, editor
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Page {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  content     Json?     // structured content
+  isPublished Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  sections Section[]
+
+  @@map("pages")
+}
+
+model Section {
+  id       String  @id @default(cuid())
+  pageId   String
+  type     String  // hero, text, image, cta, etc.
+  content  Json
+  order    Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@map("sections")
+}
+
+model Media {
+  id       String   @id @default(cuid())
+  url      String
+  alt      String?
+  type     String   // image, video
+  createdAt DateTime @default(now())
+
+  @@map("media")
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  secteur     String
+  maturite    Int
+  besoin      String
+  urgence     String
+  budget      String
+  contact     Json     // {email, telephone}
+  score       Float?
+  chatHistory Json?    // historique conversation
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  chatSessions ChatSession[]
+
+  @@map("leads")
+}
+
+model EmailConfig {
+  id             String   @id @default(cuid())
+  primaryEmail   String
+  secondaryEmails String[] // array of emails
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("email_configs")
+}
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  sessionId String   @unique
+  messages  Json     // array of messages
+  leadId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lead Lead? @relation(fields: [leadId], references: [id])
+
+  @@map("chat_sessions")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  imageUrl    String?
+  category    String
+  position    Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("services")
+}
+
+model Formation {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  level       String   // Debutant, Tech, Decideur
+  duration    String?
+  price       Float?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("formations")
+}
