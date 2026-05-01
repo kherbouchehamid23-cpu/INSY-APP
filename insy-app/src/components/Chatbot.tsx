@@ -7,6 +7,7 @@ interface Message {
   id: string;
   content: string;
   isBot: boolean;
+  role: 'user' | 'assistant';
   timestamp: Date;
 }
 
@@ -17,11 +18,13 @@ export function Chatbot() {
       id: '1',
       content: "Bonjour ! Je suis votre consultant IA IN'SY. Je peux vous aider à identifier vos besoins en intelligence artificielle. Dans quel secteur travaillez-vous ?",
       isBot: true,
+      role: 'assistant',
       timestamp: new Date()
     }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [sessionId, setSessionId] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -39,23 +42,56 @@ export function Chatbot() {
       id: Date.now().toString(),
       content: inputValue,
       isBot: false,
+      role: 'user',
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInputValue('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const botResponse: Message = {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: updatedMessages.map(({ role, content }) => ({ role, content })),
+          sessionId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Erreur de chat');
+      }
+
+      const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "Merci pour cette information. Pouvez-vous me décrire votre niveau de maturité en IA ? (1 = Débutant, 5 = Expert)",
+        content: data.response || 'Désolé, je n’ai pas pu répondre. Veuillez réessayer.',
         isBot: true,
+        role: 'assistant',
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, botResponse]);
+
+      setMessages(prev => [...prev, botMessage]);
+      if (data.sessionId) {
+        setSessionId(data.sessionId);
+      }
+    } catch (error) {
+      console.error('Chatbot error:', error);
+      const errorMessage: Message = {
+        id: `error-${Date.now()}`,
+        content: 'Une erreur est survenue. Vérifiez votre connexion ou réessayez plus tard.',
+        isBot: true,
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 2000);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -80,11 +116,11 @@ export function Chatbot() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed bottom-24 right-6 w-96 h-[520px] bg-[#10151f]/95 ring-1 ring-accent/20 shadow-[0_35px_90px_-45px_rgba(0,212,255,0.75)] backdrop-blur-xl rounded-[32px] z-50 flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-3 left-3 mx-auto w-[min(100vw-1.5rem,24rem)] max-w-[24rem] h-[min(90vh,520px)] bg-[#10151f]/95 ring-1 ring-accent/20 shadow-[0_35px_90px_-45px_rgba(0,212,255,0.75)] backdrop-blur-xl rounded-[32px] z-50 flex flex-col overflow-hidden sm:right-6 sm:left-auto sm:bottom-24"
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(0,212,255,0.14),transparent_25%),radial-gradient(circle_at_bottom_right,_rgba(138,103,255,0.12),transparent_35%)] pointer-events-none" />
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent via-[#9f7dff] to-[#ffffff] opacity-70" />
@@ -132,22 +168,12 @@ export function Chatbot() {
               ))}
 
               {isTyping && (
-                <motion.div
-                  className="flex justify-start"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
+                <motion.div className="flex justify-start" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <div className="bg-[#122036] p-3 rounded-[24px] border border-accent/20">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-accent rounded-full animate-bounce" />
-                      <div
-                        className="w-2 h-2 bg-accent rounded-full animate-bounce"
-                        style={{ animationDelay: '0.1s' }}
-                      />
-                      <div
-                        className="w-2 h-2 bg-accent rounded-full animate-bounce"
-                        style={{ animationDelay: '0.2s' }}
-                      />
+                      <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                      <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                     </div>
                   </div>
                 </motion.div>

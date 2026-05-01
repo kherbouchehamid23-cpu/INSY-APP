@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 export function Hero() {
@@ -25,7 +26,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
-          IN'SY — Intelligence en réseau
+          Accélérez votre transformation digitale par l'IA
         </motion.h1>
 
         <motion.p
@@ -34,7 +35,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
         >
-          Formation, audit, intégration et automatisation pour les organisations algériennes qui veulent passer à l'ère de l'IA.
+          Formation, audit et automatisation pour les organisations algériennes qui veulent passer à l'ère de l'IA.
         </motion.p>
 
         <motion.div
@@ -59,6 +60,7 @@ export function Hero() {
           >
             En savoir plus
           </motion.button>
+
         </motion.div>
       </div>
 

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
@@ -15,9 +16,14 @@ interface Lead {
   createdAt: string;
 }
 
-export function AdminDashboard() {
+interface AdminDashboardProps {
+  onSignOut: () => void;
+}
+
+export function AdminDashboard({ onSignOut }: AdminDashboardProps) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
     fetchLeads();
@@ -27,9 +33,16 @@ export function AdminDashboard() {
     try {
       const response = await fetch('/api/leads');
       const data = await response.json();
+
+      if (!response.ok) {
+        setFetchError(data?.error || 'Erreur lors de la récupération des leads.');
+        return;
+      }
+
       setLeads(data);
     } catch (error) {
       console.error('Error fetching leads:', error);
+      setFetchError('Impossible de récupérer les leads pour le moment.');
     } finally {
       setLoading(false);
     }
@@ -50,13 +63,41 @@ export function AdminDashboard() {
   return (
     <div className="min-h-screen bg-primary p-6">
       <div className="max-w-7xl mx-auto">
-        <motion.h1
-          className="text-4xl font-bold mb-8 text-text"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          Back-Office IN'SY
-        </motion.h1>
+        <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <motion.h1
+              className="text-4xl font-black mb-3 text-text"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              Back-Office IN'SY
+            </motion.h1>
+            <motion.p
+              className="text-muted max-w-2xl leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              Accédez aux leads qualifiés, suivez les scores et pilotez votre back-office avec un style cohérent à l’application principale.
+            </motion.p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/"
+              className="rounded-full border border-accent/30 bg-white/5 px-5 py-3 text-accent transition hover:border-accent hover:bg-white/10"
+            >
+              Retour au site
+            </Link>
+            <button
+              type="button"
+              onClick={onSignOut}
+              className="rounded-full bg-gradient-to-r from-accent to-[#7c66ff] px-5 py-3 text-primary font-semibold transition hover:scale-[1.01]"
+            >
+              Déconnexion
+            </button>
+          </div>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -121,6 +162,10 @@ export function AdminDashboard() {
               <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto"></div>
               <p className="text-muted mt-4">Chargement des leads...</p>
             </div>
+          ) : fetchError ? (
+            <div className="p-8 text-center text-red-300">
+              <p className="text-lg font-semibold">{fetchError}</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -142,8 +187,8 @@ export function AdminDashboard() {
                       <td className="px-6 py-4 text-muted max-w-xs truncate">{lead.besoin}</td>
                       <td className="px-6 py-4 text-muted">
                         <div>
-                          <p>{lead.contact.email}</p>
-                          <p className="text-sm">{lead.contact.telephone}</p>
+                          <p>{lead.contact?.email ?? '-'}</p>
+                          <p className="text-sm">{lead.contact?.telephone ?? '-'}</p>
                         </div>
                       </td>
                       <td className="px-6 py-4">

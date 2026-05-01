@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Header } from '@/components/Header';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,17 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Header />
+        {children}
+        <a
+          href="/admin"
+          className="fixed bottom-6 left-6 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white shadow-[0_15px_40px_rgba(0,0,0,0.25)] transition hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+          aria-label="Accès administration"
+        >
+          <span className="text-xl">⚙️</span>
+        </a>
+      </body>
     </html>
   );
 }
