@@ -8,10 +8,11 @@ if (typeof window === 'undefined') {
 }
 
 const prismaClientSingleton = () => {
-  // On utilise DATABASE_URL qui est la variable standard injectée par Neon
   const connectionString = process.env.DATABASE_URL
+  // On crée le pool normalement
   const pool = new Pool({ connectionString })
-  const adapter = new PrismaNeon(pool)
+  // On utilise "as any" pour que l'adapter accepte le pool Neon sans broncher
+  const adapter = new PrismaNeon(pool as any)
   return new PrismaClient({ adapter })
 }
 
