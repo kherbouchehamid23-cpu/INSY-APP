@@ -8,35 +8,44 @@ import { ratelimit } from '@/lib/ratelimit';
 import * as Sentry from '@sentry/nextjs';
 
 const LeadSchema = z.object({
-  name: z.string().min(1),
+  secteur: z.string().min(1),
+  maturite: z.coerce.number().default(1),
+  besoin: z.string().min(1),
+  urgence: z.string().min(1),
+  budget: z.string().min(1),
   email: z.string().email(),
-  interest: z.string().optional(),
+  telephone: z.string().optional(),
 });
 
 export async function createLead(prevState: any, formData: FormData) {
   try {
     const ip = headers().get('x-forwarded-for') ?? '127.0.0.1';
-    const { success } = await ratelimit.limit(`ratelimit_lead_${ip}`);
-    
-    if (!success) {
-      return { success: false, message: "Trop de requêtes. Veuillez patienter." };
-    }
+    const { success } = await ratelimit.limit(`lead_submission_${ip}`);
+    if (!success) return { success: false, message: "Trop de demandes. Réessayez plus tard." };
 
     const rawData = Object.fromEntries(formData.entries());
     const validatedData = LeadSchema.parse(rawData);
 
-    // On utilise "as any" ici pour court-circuiter l'erreur de type TypeScript 
-    // et permettre au build de finir. Prisma gérera la validation finale en BDD.
-    await prisma.lead.create({ 
-      data: validatedData as any 
+    await prisma.lead.create({
+      data: {
+        secteur: validatedData.secteur,
+        maturite: validatedData.maturite,
+        besoin: validatedData.besoin,
+        urgence: validatedData.urgence,
+        budget: validatedData.budget,
+        contact: {
+          email: validatedData.email,
+          telephone: validatedData.telephone || 'Non renseigné',
+        },
+      },
     });
 
     revalidatePath('/admin');
-    return { success: true, message: "Demande envoyée avec succès !" };
+    return { success: true, message: "Votre demande a été enregistrée !" };
 
   } catch (error) {
     Sentry.captureException(error);
-    console.error("Erreur création lead :", error);
-    return { success: false, message: "Erreur lors de l'envoi." };
+    console.error("Erreur Lead:", error);
+    return { success: false, message: "Une erreur technique est survenue." };
   }
 }
