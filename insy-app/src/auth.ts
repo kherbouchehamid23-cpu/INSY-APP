@@ -17,18 +17,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const isOnAdmin = nextUrl.pathname.startsWith('/admin');
-      if (isOnAdmin && !isLoggedIn) return false;
-      return true;
-    },
-    async redirect({ baseUrl }) {
-      // Force la destination finale après succès du login
-      return `${baseUrl}/admin`;
-    },
-  },
+  session: { strategy: "jwt" },
   pages: {
     signIn: '/login',
   },
