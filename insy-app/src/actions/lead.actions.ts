@@ -19,7 +19,10 @@ const LeadSchema = z.object({
 
 export async function createLead(prevState: any, formData: FormData) {
   try {
-    const ip = headers().get('x-forwarded-for') ?? '127.0.0.1';
+    // Correction Next.js 16 : headers() est asynchrone
+    const head = await headers();
+    const ip = head.get('x-forwarded-for') ?? '127.0.0.1';
+    
     const { success } = await ratelimit.limit(`lead_submission_${ip}`);
     if (!success) return { success: false, message: "Trop de demandes. Réessayez plus tard." };
 
