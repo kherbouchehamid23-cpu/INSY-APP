@@ -1,14 +1,5 @@
-import { auth } from "@/auth";
-
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isAdminRoute = req.nextUrl.pathname.startsWith('/admin');
-
-  if (isAdminRoute && !isLoggedIn) {
-    return Response.redirect(new URL('/api/auth/signin', req.nextUrl));
-  }
-});
+export { auth as default } from "@/auth"
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-};
+  matcher: ["/admin/:path*"],
+}
