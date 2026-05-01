@@ -5,11 +5,11 @@ import type { NextRequest } from "next/server"
 export async function middleware(request: NextRequest) {
   const session = await auth();
   const isOnAdmin = request.nextUrl.pathname.startsWith('/admin');
-
+  
   if (isOnAdmin && !session) {
-    return NextResponse.redirect(new URL('/', request.nextUrl));
+    // Redirige vers la page de login au lieu de la page d'accueil
+    return NextResponse.redirect(new URL('/login', request.nextUrl));
   }
-
   return NextResponse.next();
 }
 
