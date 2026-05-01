@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
   const isOnAdmin = request.nextUrl.pathname.startsWith('/admin');
 
   if (isOnAdmin && !session) {
-    return NextResponse.redirect(new URL('/login', request.nextUrl));
+    return NextResponse.redirect(new URL('/', request.nextUrl));
   }
 
   return NextResponse.next();
