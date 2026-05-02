@@ -1,7 +1,19 @@
 import { PrismaClient } from '@prisma/client';
+import { neonConfig, Pool } from '@neondatabase/serverless';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import ws from 'ws';
+
+if (typeof window === 'undefined') {
+  neonConfig.webSocketConstructor = ws;
+}
 
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  // Injection d'une URL factice pour éviter le crash lors du "next build" sur Vercel
+  const connectionString = process.env.DATABASE_URL || "postgres://dummy:dummy@dummy/dummy";
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaNeon(pool as any);
+  
+  return new PrismaClient({ adapter });
 };
 
 declare global {
