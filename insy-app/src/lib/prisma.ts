@@ -8,9 +8,16 @@ if (typeof window === 'undefined') {
 }
 
 const prismaClientSingleton = () => {
-  // Injection d'une URL factice pour éviter le crash lors du "next build" sur Vercel
-  const connectionString = process.env.DATABASE_URL || "postgres://dummy:dummy@dummy/dummy";
-  const pool = new Pool({ connectionString });
+  const url = process.env.DATABASE_URL;
+  
+  // Si l'URL est manquante (ex: pendant le build Vercel), on retourne un client natif
+  // Cela évite de faire exploser la couche WebSocket de Neon avec une URL factice.
+  if (!url) {
+    console.warn("⚠️ DATABASE_URL est manquante. Assurez-vous qu'elle est définie dans Vercel.");
+    return new PrismaClient();
+  }
+
+  const pool = new Pool({ connectionString: url });
   const adapter = new PrismaNeon(pool as any);
   
   return new PrismaClient({ adapter });
